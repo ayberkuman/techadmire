@@ -10,6 +10,7 @@ export async function registerAction(values: {
   email: string;
   password: string;
 }) {
+  //after client side validation, also validate here to ensure security
   if (validate.safeParse(values).success) {
     const formData = new FormData();
     formData.append("email", values.email);

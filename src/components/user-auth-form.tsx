@@ -21,6 +21,8 @@ import { Loader2 } from "lucide-react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { registerAction } from "@/lib/actions";
 import { useRouter } from "next/navigation";
+import { useToast } from "./ui/use-toast";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -32,7 +34,11 @@ const formSchema = z.object({
 });
 
 export function UserAuthForm() {
+  const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -43,10 +49,23 @@ export function UserAuthForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await registerAction(values);
+      setIsLoading(true);
+      const response = await registerAction(values);
+      if (response) {
+        toast({
+          title: "Success",
+          description:
+            "Account created successfully. Redirecting to dashboard...",
+        });
+      }
       router.push("/dashboard");
     } catch (error) {
-      console.log(error);
+      toast({
+        title: "An error occurred",
+        description: error instanceof Error ? error.message : String(error),
+      });
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -70,7 +89,7 @@ export function UserAuthForm() {
                       autoCorrect="off"
                       placeholder="example@gmail.com"
                       {...field}
-                      // disabled={isLoading}
+                       disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -89,15 +108,15 @@ export function UserAuthForm() {
                       type="password"
                       placeholder="Password"
                       {...field}
-                      // disabled={isLoading}
+                       disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button /* disabled={isLoading} */>
-              {/* {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} */}
+            <Button disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
           </div>
@@ -114,11 +133,11 @@ export function UserAuthForm() {
         </div>
       </div>
       <Button variant="outline" type="button" /* disabled={isLoading} */>
-        {/*  {isLoading ? (
+         {isLoading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <GitHubLogoIcon className="mr-2 h-4 w-4" />
-        )} */}
+        )}
         GitHub
       </Button>
     </div>
