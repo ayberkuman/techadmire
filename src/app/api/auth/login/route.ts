@@ -5,14 +5,8 @@ export async function POST(request: Request) {
   const email = formData.get("email");
   const password = formData.get("password");
 
-  //ensure email and password are provided and encrypt password and save to database
-
   if (email && password) {
     if (email === user.email && password === user.password) {
-      return new Response("User Already Exists", {
-        status: 401,
-      });
-    } else {
       return new Response("Success", {
         status: 200,
       });
@@ -22,4 +16,7 @@ export async function POST(request: Request) {
       status: 400,
     });
   }
+  return new Response("Invalid form data", {
+    status: 400,
+  });
 }

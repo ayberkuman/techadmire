@@ -1,12 +1,12 @@
 "use client";
 
 import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -21,6 +21,12 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { useToast } from "./ui/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 const formSchema = z
   .object({
@@ -45,7 +51,7 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
-export function UserAuthForm() {
+export function UserRegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
@@ -54,6 +60,8 @@ export function UserAuthForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      firstName: "",
+      lastName: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -64,14 +72,19 @@ export function UserAuthForm() {
     try {
       setIsLoading(true);
       const response = await registerAction(values);
-      if (response) {
+      if (response?.message === "Success") {
         toast({
           title: "Success",
           description:
             "Account created successfully. Redirecting to dashboard...",
         });
+        router.push("/dashboard");
+      } else {
+        toast({
+          title: "An error occurred",
+          description: "User already exists",
+        });
       }
-      router.push("/dashboard");
     } catch (error) {
       toast({
         title: "An error occurred",
@@ -206,14 +219,28 @@ export function UserAuthForm() {
           </span>
         </div>
       </div>
-      <Button variant="outline" type="button" /* disabled={isLoading} */>
-        {isLoading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : (
-          <GitHubLogoIcon className="mr-2 h-4 w-4" />
-        )}
-        GitHub
-      </Button>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="outline"
+              className="cursor-not-allowed"
+              type="button"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <GitHubLogoIcon className="mr-2 h-4 w-4" />
+              )}
+              GitHub
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Coming soon...</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
   );
 }

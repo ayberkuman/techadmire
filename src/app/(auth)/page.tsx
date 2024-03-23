@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
-import { UserAuthForm } from "@/components/user-auth-form";
+import { UserRegisterForm } from "@/components/user-register-form";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <div className="container relative h-screen flex flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <Link
-          href="/examples/authentication"
+          href="/login"
           className={cn(
             buttonVariants({ variant: "ghost" }),
             "absolute right-4 top-4 md:right-8 md:top-8"
@@ -55,7 +55,7 @@ export default function Home() {
                 Enter your email below to create your account
               </p>
             </div>
-            <UserAuthForm />
+            <UserRegisterForm />
             <p className="px-8 text-center text-sm text-muted-foreground">
               By clicking continue, you agree to our{" "}
               <Link
