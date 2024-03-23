@@ -1,37 +1,49 @@
 "use client";
 
-import { z } from "zod";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage
+} from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { z } from "zod";
 
-import { cn } from "@/lib/utils";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { Loader2 } from "lucide-react";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { registerAction } from "@/lib/actions";
+import { cn } from "@/lib/utils";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useToast } from "./ui/use-toast";
 import { useState } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { useToast } from "./ui/use-toast";
 
-const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters long",
-  }),
-});
+const formSchema = z
+  .object({
+    firstName: z.string().min(2, {
+      message: "Please enter your first name",
+    }),
+    lastName: z.string().min(2, {
+      message: "Please enter your last name",
+    }),
+    email: z.string().email({
+      message: "Please enter a valid email address",
+    }),
+    password: z.string().min(8, {
+      message: "Password must be at least 8 characters long",
+    }),
+    confirmPassword: z.string().min(8, {
+      message: "Password must be at least 8 characters long",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export function UserAuthForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +56,7 @@ export function UserAuthForm() {
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -74,6 +87,46 @@ export function UserAuthForm() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <div className="grid gap-4">
+            <div className="flex gap-2">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem className="grid gap-1">
+                    <FormLabel htmlFor="firstName">First Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="firstName"
+                        type="text"
+                        placeholder="John"
+                        {...field}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem className="grid gap-1">
+                    <FormLabel htmlFor="lastName">Last Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="lastName"
+                        type="text"
+                        placeholder="Doe"
+                        {...field}
+                        disabled={isLoading}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
             <FormField
               control={form.control}
               name="email"
@@ -89,7 +142,7 @@ export function UserAuthForm() {
                       autoCorrect="off"
                       placeholder="example@gmail.com"
                       {...field}
-                       disabled={isLoading}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -108,7 +161,28 @@ export function UserAuthForm() {
                       type="password"
                       placeholder="Password"
                       {...field}
-                       disabled={isLoading}
+                      disabled={isLoading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="confirmPassword"
+              render={({ field }) => (
+                <FormItem className="grid gap-1">
+                  <FormLabel htmlFor="confirmPassword">
+                    Confirm Password
+                  </FormLabel>
+                  <FormControl>
+                    <Input
+                      id="confirmPassword"
+                      type="password"
+                      placeholder="Password"
+                      {...field}
+                      disabled={isLoading}
                     />
                   </FormControl>
                   <FormMessage />
@@ -133,7 +207,7 @@ export function UserAuthForm() {
         </div>
       </div>
       <Button variant="outline" type="button" /* disabled={isLoading} */>
-         {isLoading ? (
+        {isLoading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <GitHubLogoIcon className="mr-2 h-4 w-4" />
