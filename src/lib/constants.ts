@@ -2,6 +2,49 @@ export const user = {
   email: "admin@gmail.com",
   password: "ayberk26",
 };
+export const sortOptions = [
+  { name: "Deadline: Earliest", value: "deadlineearly", id: 1 },
+  { name: "Deadline: Latest", value: "deadlinelate", id: 2 },
+  { name: "Price: Low to High", value: "pricelow", id: 3 },
+  { name: "Price: High to Low", value: "pricehigh", id: 4 },
+];
+
+export const filters = [
+  {
+    id: "countries",
+    name: "Countries",
+    options: [
+      { value: "usa", label: "United States" },
+      { value: "poland", label: "Poland" },
+      { value: "uk", label: "Norway" },
+      { value: "china", label: "China" },
+    ],
+  },
+  {
+    id: "unis",
+    name: "Universities",
+    options: [{ value: "shengyang", label: "Shenyang University" }],
+  },
+  {
+    id: "lang",
+    name: "Languages",
+    options: [
+      { value: "english", label: "English" },
+      { value: "french", label: "French" },
+      { value: "turkish", label: "Turkish" },
+    ],
+  },
+  {
+    id: "duration",
+    name: "Duration",
+    options: [
+      { value: "1y", label: "1 year" },
+      { value: "2y", label: "2 years" },
+      { value: "4y", label: "4 years" },
+      { value: "8y", label: "8 years" },
+    ],
+  },
+];
 
 export const applicationsData = [
   {

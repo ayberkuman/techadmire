@@ -16,61 +16,27 @@ import { useState } from "react";
 import { Input } from "./ui/input";
 import { Application } from "@/lib/types";
 import { Card, CardContent, CardHeader } from "./ui/card";
-
-const sortOptions = [
-  { name: "Deadline: Earliest", href: "#", id: 1 },
-  { name: "Deadline: Latest", href: "#", id: 2 },
-  { name: "Price: Low to High", href: "#", id: 3 },
-  { name: "Price: High to Low", href: "#", id: 4 },
-];
-const subCategories = [
-  { name: "Totes", href: "#" },
-  { name: "Backpacks", href: "#" },
-  { name: "Travel Bags", href: "#" },
-  { name: "Hip Bags", href: "#" },
-  { name: "Laptop Sleeves", href: "#" },
-];
-const filters = [
-  {
-    id: "color",
-    name: "Color",
-    options: [
-      { value: "white", label: "White", checked: false },
-      { value: "beige", label: "Beige", checked: false },
-      { value: "blue", label: "Blue", checked: true },
-      { value: "brown", label: "Brown", checked: false },
-      { value: "green", label: "Green", checked: false },
-      { value: "purple", label: "Purple", checked: false },
-    ],
-  },
-  {
-    id: "category",
-    name: "Category",
-    options: [
-      { value: "new-arrivals", label: "New Arrivals", checked: false },
-      { value: "sale", label: "Sale", checked: false },
-      { value: "travel", label: "Travel", checked: true },
-      { value: "organization", label: "Organization", checked: false },
-      { value: "accessories", label: "Accessories", checked: false },
-    ],
-  },
-  {
-    id: "size",
-    name: "Size",
-    options: [
-      { value: "2l", label: "2L", checked: false },
-      { value: "6l", label: "6L", checked: false },
-      { value: "12l", label: "12L", checked: false },
-      { value: "18l", label: "18L", checked: false },
-      { value: "20l", label: "20L", checked: false },
-      { value: "40l", label: "40L", checked: true },
-    ],
-  },
-];
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { filters, sortOptions } from "@/lib/constants";
 
 export default function Hero({ data }: { data: Application[] }) {
   const [checked, setChecked] = useState<Number[]>([]);
-  console.log(data);
+
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const router = useRouter();
+
+  const handleSortBy = (term: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (term) {
+      params.set("sortBy", term);
+    } else {
+      params.delete("sortBy");
+    }
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div>
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -96,6 +62,7 @@ export default function Hero({ data }: { data: Application[] }) {
                   <DropdownMenuCheckboxItem
                     checked={checked.includes(option.id)}
                     onCheckedChange={(isChecked) => {
+                      handleSortBy(option.value);
                       setChecked((prev) =>
                         isChecked
                           ? [...prev, option.id]
@@ -105,7 +72,7 @@ export default function Hero({ data }: { data: Application[] }) {
                     className="pl-6 pr-4 py-2"
                     key={option.name}
                   >
-                    <a href={option.href}>{option.name}</a>
+                    <div>{option.name}</div>
                   </DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
@@ -157,7 +124,6 @@ export default function Hero({ data }: { data: Application[] }) {
                                 name={`${section.id}[]`}
                                 defaultValue={option.value}
                                 type="checkbox"
-                                defaultChecked={option.checked}
                                 className="h-4 w-4 rounded"
                               />
                               <label
@@ -182,6 +148,8 @@ export default function Hero({ data }: { data: Application[] }) {
                   <CardHeader>{app.name}</CardHeader>
                   <CardContent>
                     <p>{app.university}</p>
+                    <p>{app.cost}</p>
+                    <p>{app.deadline}</p>
                   </CardContent>
                 </Card>
               ))}
