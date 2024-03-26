@@ -18,10 +18,17 @@ export async function registerAction(values: {
     const formData = new FormData();
     formData.append("email", values.email);
     formData.append("password", values.password);
-    const response = await fetch("http://localhost:3000/api/auth/register", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:3000/"
+          : "https://techadmire.vercel.app/"
+      }api/auth/register`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     if (response.status === 200) {
       return { message: "Success" };
     } else if (response.status === 409) {
@@ -37,10 +44,17 @@ export async function loginAction(values: { email: string; password: string }) {
     const formData = new FormData();
     formData.append("email", values.email);
     formData.append("password", values.password);
-    const response = await fetch("http://localhost:3000/api/auth/login", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      `${
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:3000/"
+          : "https://techadmire.vercel.app/"
+      }api/auth/login`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
     if (response.status === 200) {
       return { message: "Success" };
     }
