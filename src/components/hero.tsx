@@ -11,16 +11,36 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDownIcon, Ghost, Grid2X2, User2Icon } from "lucide-react";
-import { useState } from "react";
-import { Input } from "./ui/input";
-import { Application } from "@/lib/types";
-import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { filters, sortOptions } from "@/lib/constants";
+import { Application } from "@/lib/types";
+import {
+  ChevronDownIcon,
+  FilterIcon,
+  Ghost,
+  Grid2X2,
+  ListIcon,
+  MinusIcon,
+  PlusIcon,
+  XIcon,
+} from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import ApplicationCard from "./application-card";
+import { Input } from "./ui/input";
+import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 
 export default function Hero({ data }: { data: Application[] }) {
   const [checked, setChecked] = useState<Number[]>([]);
+  const [display, setDisplay] = useState<"grid" | "list">("grid");
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({
@@ -63,11 +83,11 @@ export default function Hero({ data }: { data: Application[] }) {
   };
 
   return (
-    <div>
+    <>
       <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-baseline justify-between border-b border-gray-200 pb-6 pt-24">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
-            New Arrivals
+            Applications
           </h1>
 
           <div className="flex items-center">
@@ -104,21 +124,91 @@ export default function Hero({ data }: { data: Application[] }) {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <button
-              type="button"
+            <Button
+              variant="link"
+              onClick={() => setDisplay(display === "grid" ? "list" : "grid")}
               className="-m-2 ml-5 p-2 text-gray-400 hover:text-gray-500 sm:ml-7"
             >
-              <span className="sr-only">View grid</span>
-              <Grid2X2 className="h-5 w-5" aria-hidden="true" />
-            </button>
+              <span className="sr-only">Change grid display</span>
+              {display === "grid" ? (
+                <Grid2X2 className="h-5 w-5" aria-hidden="true" />
+              ) : (
+                <ListIcon className="h-5 w-5" aria-hidden="true" />
+              )}
+            </Button>
+            {/* Mobile Filters */}
+            <Sheet>
+              <SheetTrigger className="lg:hidden">
+                <FilterIcon className="h-5 w-5 ml-5 text-gray-400 hover:text-gray-500" />
+              </SheetTrigger>
+              <SheetContent>
+                <div className="flex items-center justify-between px-4">
+                  <h2 className="text-lg font-medium text-gray-900">Filters</h2>
+                </div>
+
+                <form className="mt-4 border-t border-gray-200">
+                  <h3 className="sr-only">Categories</h3>
+
+                  <Accordion type="multiple">
+                    {filters.map((section) => (
+                      <AccordionItem
+                        value={section.id}
+                        key={section.id}
+                        className="border-t border-gray-200 px-4 py-6"
+                      >
+                        <>
+                          <h3 className="-mx-2 -my-3 flow-root">
+                            <AccordionTrigger className="flex w-full items-center justify-between bg-white px-2 py-3 text-gray-400 hover:text-gray-500">
+                              <span className="font-medium text-gray-900">
+                                {section.name}
+                              </span>
+                            </AccordionTrigger>
+                          </h3>
+                          <AccordionContent className="pt-6">
+                            <div className="space-y-6">
+                              {section.options.map((option, optionIdx) => (
+                                <div
+                                  key={option.value}
+                                  className="flex items-center"
+                                >
+                                  <Input
+                                    id={`filter-mobile-${section.id}-${optionIdx}`}
+                                    name={`${section.id}[]`}
+                                    defaultValue={option.value}
+                                    type="checkbox"
+                                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                    onChange={(e) => {
+                                      setSelectedFilters((prev) => ({
+                                        ...prev,
+                                        [section.id]: e.target.checked
+                                          ? [...prev[section.id], option.label]
+                                          : prev[section.id].filter(
+                                              (val) => val !== option.label
+                                            ),
+                                      }));
+                                    }}
+                                  />
+                                  <label
+                                    htmlFor={`filter-mobile-${section.id}-${optionIdx}`}
+                                    className="ml-3 min-w-0 flex-1 text-gray-500"
+                                  >
+                                    {option.label}
+                                  </label>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </form>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
 
-        <section aria-labelledby="products-heading" className="pb-24 pt-6">
-          <h2 id="products-heading" className="sr-only">
-            Products
-          </h2>
-
+        <section className="pb-24 pt-6">
           <div className="grid grid-cols-1 gap-x-8 gap-y-10 lg:grid-cols-4">
             {/* Filters */}
             <form className="hidden lg:block">
@@ -178,69 +268,15 @@ export default function Hero({ data }: { data: Application[] }) {
               </Accordion>
             </form>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 col-span-3">
+            <div
+              className={cn(
+                "grid grid-cols-1 md:grid-cols-2 gap-2 col-span-3 max-h-dvh overflow-scroll",
+                display === "grid" ? "md:grid-cols-2" : "md:grid-cols-1"
+              )}
+            >
               {filteredData && filteredData.length !== 0 ? (
                 filteredData.map((app) => (
-                  <Card key={app.id}>
-                    <CardHeader className="p-0">
-                      <div className="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
-                        <User2Icon className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10" />
-                        <div className="text-sm font-medium leading-6 text-gray-900">
-                          {app.name}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <dl className="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
-                        <div className="flex justify-between gap-x-4 py-3">
-                          <dt className="text-gray-500">University</dt>
-                          <dd className="text-gray-700">
-                            <div>{app.university}</div>
-                          </dd>
-                        </div>
-                        <div className="flex justify-between gap-x-4 py-3">
-                          <dt className="text-gray-500">Deadline</dt>
-                          <dd className="text-gray-700">
-                            <div>{app.deadline}</div>
-                          </dd>
-                        </div>
-                        <div className="flex justify-between gap-x-4 py-3">
-                          <dt className="text-gray-500">Cost</dt>
-                          <dd className="flex items-start gap-x-2">
-                            <div className="font-medium text-gray-900">
-                              {app.cost}$
-                            </div>
-                          </dd>
-                        </div>
-                        <div className="flex justify-between gap-x-4 py-3">
-                          <dt className="text-gray-500">Language</dt>
-                          <dd className="flex items-start gap-x-2">
-                            <div className="font-medium text-gray-900">
-                              {app.language}
-                            </div>
-                          </dd>
-                        </div>
-                      </dl>
-                    </CardContent>
-                    <CardFooter className="flex items-center justify-around">
-                      <div className="flex justify-between gap-x-4 py-3">
-                        <dd className="flex items-start gap-x-2">
-                          <div className="font-medium text-gray-900">
-                            {app.country}
-                          </div>
-                        </dd>
-                      </div>
-                      <div className="flex justify-between gap-x-4 py-3">
-                        <dd className="flex items-start gap-x-2">
-                          <div className="font-medium text-gray-900">
-                            {app.duration === 1
-                              ? `${app.duration} year`
-                              : `${app.duration} years`}
-                          </div>
-                        </dd>
-                      </div>
-                    </CardFooter>
-                  </Card>
+                  <ApplicationCard key={app.id} {...app} />
                 ))
               ) : (
                 <div className="mt-16 flex flex-col items-center gap-2 col-span-2">
@@ -254,6 +290,6 @@ export default function Hero({ data }: { data: Application[] }) {
           </div>
         </section>
       </main>
-    </div>
+    </>
   );
 }

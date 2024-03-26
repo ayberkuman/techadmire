@@ -1,6 +1,7 @@
 "use server";
 import { z } from "zod";
 
+//im only checking for email and password here, i didn't add more fields for the sake of simplicity
 const validate = z.object({
   email: z.string().email(),
   password: z.string().min(8),

@@ -1,6 +1,6 @@
 export const user = {
   email: "admin@gmail.com",
-  password: "ayberk26",
+  password: "random123",
 };
 export const sortOptions = [
   { name: "Deadline: Earliest", value: "deadlineearly", id: 1 },
