@@ -8,8 +8,8 @@ export async function POST(request: Request) {
   //ensure email and password are provided and encrypt password and save to database
 
   if (email && password) {
-    if (email === user.email && password === user.password) {
-      return new Response("User Already Exists", {
+    if (email === user.email) {
+      return new Response("User with Email Already Exists", {
         status: 401,
       });
     } else {
