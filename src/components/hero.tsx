@@ -13,30 +13,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { filters, sortOptions } from "@/lib/constants";
 import { Application } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import {
   ChevronDownIcon,
   FilterIcon,
   Ghost,
   Grid2X2,
   ListIcon,
-  MinusIcon,
-  PlusIcon,
-  XIcon,
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import ApplicationCard from "./application-card";
-import { Input } from "./ui/input";
-import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./ui/sheet";
+import { Input } from "./ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 
 export default function Hero({ data }: { data: Application[] }) {
   const [checked, setChecked] = useState<Number[]>([]);
@@ -54,6 +44,7 @@ export default function Hero({ data }: { data: Application[] }) {
   const pathname = usePathname();
   const router = useRouter();
 
+  //this function filters the data on the client side i didn't want to overcrowd the url params
   const filteredData = data.filter((app) => {
     const country = selectedFilters.countries.length
       ? selectedFilters.countries.includes(app.country)
@@ -72,9 +63,10 @@ export default function Hero({ data }: { data: Application[] }) {
     return country && language && university && duration;
   });
 
+  //this function writes the sort by query parameter to the url so i can get the sorted data
   const handleSortBy = (term: string, isChecked: boolean) => {
     const params = new URLSearchParams(searchParams);
-    if (term) {
+    if (isChecked) {
       params.set("sortBy", term);
     } else {
       params.delete("sortBy");
@@ -267,7 +259,6 @@ export default function Hero({ data }: { data: Application[] }) {
                 ))}
               </Accordion>
             </form>
-
             <div
               className={cn(
                 "grid grid-cols-1 md:grid-cols-2 gap-2 col-span-3 max-h-dvh overflow-scroll",

@@ -1,6 +1,8 @@
 "use server";
 import { z } from "zod";
 
+// these are server actions that will be called from the client side
+
 //im only checking for email and password here, i didn't add more fields for the sake of simplicity
 const validate = z.object({
   email: z.string().email(),
