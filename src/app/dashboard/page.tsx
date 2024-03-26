@@ -15,7 +15,11 @@ export default async function Dashboard({
   //this page is fully server side rendered with a React Server Component and next.js will
   //automatically cache the data so you probably won't see the loader
   const response = await fetch(
-    `http://localhost:3000/api/applications?sortBy=${sortQuery}`
+    `${
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000/"
+        : "https://techadmire.vercel.app/"
+    }api/applications?sortBy=${sortQuery}`
   );
   const data: {
     data: Application[];
