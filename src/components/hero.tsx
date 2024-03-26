@@ -11,23 +11,48 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDownIcon, Grid2X2 } from "lucide-react";
+import { ChevronDownIcon, Ghost, Grid2X2, User2Icon } from "lucide-react";
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Application } from "@/lib/types";
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { filters, sortOptions } from "@/lib/constants";
 
 export default function Hero({ data }: { data: Application[] }) {
   const [checked, setChecked] = useState<Number[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<
+    Record<string, string[]>
+  >({
+    countries: [],
+    languages: [],
+    universities: [],
+    duration: [],
+  });
 
   const searchParams = useSearchParams();
   const pathname = usePathname();
-
   const router = useRouter();
 
-  const handleSortBy = (term: string) => {
+  const filteredData = data.filter((app) => {
+    const country = selectedFilters.countries.length
+      ? selectedFilters.countries.includes(app.country)
+      : true;
+    const language = selectedFilters.languages.length
+      ? selectedFilters.languages.includes(app.language)
+      : true;
+    const university = selectedFilters.universities.length
+      ? selectedFilters.universities.includes(app.university)
+      : true;
+    const duration = selectedFilters.duration.length
+      ? selectedFilters.duration.includes(
+          app.duration === 1 ? "1 year" : `${app.duration} years`
+        )
+      : true;
+    return country && language && university && duration;
+  });
+
+  const handleSortBy = (term: string, isChecked: boolean) => {
     const params = new URLSearchParams(searchParams);
     if (term) {
       params.set("sortBy", term);
@@ -58,11 +83,11 @@ export default function Hero({ data }: { data: Application[] }) {
               </div>
 
               <DropdownMenuContent>
-                {sortOptions.map((option) => (
+                {sortOptions.map((option, index) => (
                   <DropdownMenuCheckboxItem
                     checked={checked.includes(option.id)}
                     onCheckedChange={(isChecked) => {
-                      handleSortBy(option.value);
+                      handleSortBy(option.value, isChecked);
                       setChecked((prev) =>
                         isChecked
                           ? [...prev, option.id]
@@ -71,6 +96,7 @@ export default function Hero({ data }: { data: Application[] }) {
                     }}
                     className="pl-6 pr-4 py-2"
                     key={option.name}
+                    disabled={index === 0 || index === 1}
                   >
                     <div>{option.name}</div>
                   </DropdownMenuCheckboxItem>
@@ -125,6 +151,16 @@ export default function Hero({ data }: { data: Application[] }) {
                                 defaultValue={option.value}
                                 type="checkbox"
                                 className="h-4 w-4 rounded"
+                                onChange={(e) => {
+                                  setSelectedFilters((prev) => ({
+                                    ...prev,
+                                    [section.id]: e.target.checked
+                                      ? [...prev[section.id], option.label]
+                                      : prev[section.id].filter(
+                                          (val) => val !== option.label
+                                        ),
+                                  }));
+                                }}
                               />
                               <label
                                 htmlFor={`filter-${section.id}-${optionIdx}`}
@@ -142,17 +178,78 @@ export default function Hero({ data }: { data: Application[] }) {
               </Accordion>
             </form>
 
-            <div className="grid grid-cols-2 gap-2 col-span-3">
-              {data.map((app) => (
-                <Card key={app.id}>
-                  <CardHeader>{app.name}</CardHeader>
-                  <CardContent>
-                    <p>{app.university}</p>
-                    <p>{app.cost}</p>
-                    <p>{app.deadline}</p>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 col-span-3">
+              {filteredData && filteredData.length !== 0 ? (
+                filteredData.map((app) => (
+                  <Card key={app.id}>
+                    <CardHeader className="p-0">
+                      <div className="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
+                        <User2Icon className="h-12 w-12 flex-none rounded-lg bg-white object-cover ring-1 ring-gray-900/10" />
+                        <div className="text-sm font-medium leading-6 text-gray-900">
+                          {app.name}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <dl className="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm leading-6">
+                        <div className="flex justify-between gap-x-4 py-3">
+                          <dt className="text-gray-500">University</dt>
+                          <dd className="text-gray-700">
+                            <div>{app.university}</div>
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-x-4 py-3">
+                          <dt className="text-gray-500">Deadline</dt>
+                          <dd className="text-gray-700">
+                            <div>{app.deadline}</div>
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-x-4 py-3">
+                          <dt className="text-gray-500">Cost</dt>
+                          <dd className="flex items-start gap-x-2">
+                            <div className="font-medium text-gray-900">
+                              {app.cost}$
+                            </div>
+                          </dd>
+                        </div>
+                        <div className="flex justify-between gap-x-4 py-3">
+                          <dt className="text-gray-500">Language</dt>
+                          <dd className="flex items-start gap-x-2">
+                            <div className="font-medium text-gray-900">
+                              {app.language}
+                            </div>
+                          </dd>
+                        </div>
+                      </dl>
+                    </CardContent>
+                    <CardFooter className="flex items-center justify-around">
+                      <div className="flex justify-between gap-x-4 py-3">
+                        <dd className="flex items-start gap-x-2">
+                          <div className="font-medium text-gray-900">
+                            {app.country}
+                          </div>
+                        </dd>
+                      </div>
+                      <div className="flex justify-between gap-x-4 py-3">
+                        <dd className="flex items-start gap-x-2">
+                          <div className="font-medium text-gray-900">
+                            {app.duration === 1
+                              ? `${app.duration} year`
+                              : `${app.duration} years`}
+                          </div>
+                        </dd>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                ))
+              ) : (
+                <div className="mt-16 flex flex-col items-center gap-2 col-span-2">
+                  <Ghost />
+                  <div className="font-semibold text-xl">
+                    No applications found
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>

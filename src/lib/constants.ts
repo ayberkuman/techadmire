@@ -21,12 +21,15 @@ export const filters = [
     ],
   },
   {
-    id: "unis",
+    id: "universities",
     name: "Universities",
-    options: [{ value: "shengyang", label: "Shenyang University" }],
+    options: [
+      { value: "shengyang", label: "Shenyang University" },
+      { value: "cmu", label: "Central Mindanao University" },
+    ],
   },
   {
-    id: "lang",
+    id: "languages",
     name: "Languages",
     options: [
       { value: "english", label: "English" },
@@ -38,10 +41,10 @@ export const filters = [
     id: "duration",
     name: "Duration",
     options: [
-      { value: "1y", label: "1 year" },
-      { value: "2y", label: "2 years" },
-      { value: "4y", label: "4 years" },
-      { value: "8y", label: "8 years" },
+      { value: 1, label: "1 year" },
+      { value: 2, label: "2 years" },
+      { value: 4, label: "4 years" },
+      { value: 8, label: "8 years" },
     ],
   },
 ];
